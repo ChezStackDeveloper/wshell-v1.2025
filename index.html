@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>wshell</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      background: #000;
+      color: #00ff00;
+      font-family: 'Courier New', monospace;
+      font-size: 16px;
+    }
+
+    .terminal {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      padding: 10px;
+      box-sizing: border-box;
+      overflow-y: auto;
+    }
+
+    .output {
+      white-space: pre-wrap;
+      flex-grow: 1;
+    }
+
+    .input-line {
+      display: flex;
+      align-items: center;
+    }
+
+    .prompt {
+      margin-right: 5px;
+    }
+
+    input {
+      background: transparent;
+      border: none;
+      color: #00ff00;
+      font-family: inherit;
+      font-size: inherit;
+      width: 100%;
+      outline: none;
+    }
+
+    .blinking-cursor::after {
+      content: "|";
+      animation: blink 1s infinite;
+    }
+
+    @keyframes blink {
+      0%, 50% { opacity: 1; }
+      50.01%, 100% { opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="terminal" id="terminal">
+    <div class="output" id="output"></div>
+    <div class="input-line">
+      <span class="prompt">user@wshell:~$</span>
+      <input type="text" id="input" class="blinking-cursor" autofocus autocomplete="off" />
+    </div>
+  </div>
+
+  <script>
+    const input = document.getElementById('input');
+    const output = document.getElementById('output');
+    const terminal = document.getElementById('terminal');
+
+    const commands = {
+      help: `Available commands:
+  help      Show this help message
+  clear     Clear the terminal
+  echo      Echo your input
+  about     Info about this terminal
+`,
+      about: "Web Terminal v1.0\nCreated with HTML, CSS, and JavaScript.",
+    };
+
+    function runCommand(cmd) {
+      const args = cmd.split(' ');
+      const baseCmd = args[0].toLowerCase();
+
+      switch (baseCmd) {
+        case 'help':
+          return commands.help;
+        case 'clear':
+          output.innerHTML = '';
+          return '';
+        case 'echo':
+          return args.slice(1).join(' ');
+        case 'about':
+          return commands.about;
+        default:
+          return `'${cmd}' is not recognized as a command. Type 'help' for a list of commands.`;
+      }
+    }
+
+    input.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') {
+        const command = input.value;
+        const prompt = `user@web:~$ ${command}\n`;
+        const result = runCommand(command);
+        if (command !== 'clear') {
+          output.innerText += prompt + result + '\n';
+        }
+        input.value = '';
+        terminal.scrollTop = terminal.scrollHeight;
+      }
+    });
+  </script>
+</body>
+</html>
